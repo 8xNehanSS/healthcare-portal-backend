@@ -61,8 +61,8 @@ func CheckLogin(c *gin.Context) {
 		c.Status(500)
 		return
 	}
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, 3600*24*5, "", "", false, true)
+	c.SetSameSite(http.SameSiteNoneMode)
+	c.SetCookie("sessiontoken", tokenString, 3600*24*5, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{})
 }
 
@@ -82,8 +82,10 @@ func CreateLogin(username string, email string, password string, userType uint, 
 
 func Validate(c *gin.Context) {
 	user, _ := c.Get("user")
+	login, _ := c.Get("login")
 
 	c.JSON(http.StatusOK, gin.H{
 		"user": user,
+		"login": login.(models.Login).ID,
 	})
 }
