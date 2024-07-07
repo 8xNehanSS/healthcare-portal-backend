@@ -62,8 +62,9 @@ func CheckLogin(c *gin.Context) {
 		return
 	}
 	c.SetSameSite(http.SameSiteNoneMode)
-	c.SetCookie("sessiontoken", tokenString, 3600*24*5, "/", "", false, true)
+	c.SetCookie("Authorization", tokenString, 3600*24*5, "/", "", true, false)
 	c.JSON(http.StatusOK, gin.H{})
+
 }
 
 func CreateLogin(username string, email string, password string, userType uint, userID uint, user models.User) error {
@@ -87,5 +88,6 @@ func Validate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"user": user,
 		"login": login.(models.Login).ID,
+		"loginType": login.(models.Login).Type,
 	})
 }
