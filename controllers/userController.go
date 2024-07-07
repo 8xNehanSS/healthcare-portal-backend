@@ -8,10 +8,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func ValidateUsername (c *gin.Context) {
+	var body struct {
+		Username string `json:"username"`
+	}
+	c.Bind(&body)
+	var login models.Login
+	initializers.DB.Where("username = ?", body.Username).First(&login)
+	if login.ID != 0 {
+		c.Status(400)
+		return
+	}
+	c.Status(200)
+}
+
 func CreateUser (c *gin.Context) {
 	var body struct {
-		FirstName string `json:"first_name"`
-		LastName string `json:"last_name"`
+		FirstName string `json:"firstName"`
+		LastName string `json:"lastName"`
 		Address string `json:"address"`
 		Email string `json:"email"`
 		Age uint8 `json:"age"`
@@ -31,16 +45,17 @@ func CreateUser (c *gin.Context) {
 		Age: body.Age,
 		Birthday: body.Birthday,
 	}
-	err := CreateLogin(body.Username, body.Email, body.Password, body.Type, user.ID, user)
-	if err != nil {
-		c.Status(400)
-		return
-	}
 	result := initializers.DB.Create(&user)
 	if result.Error != nil {
 		c.Status(400)
 		return
 	}
+	err := CreateLogin(body.Username, body.Email, body.Password, body.Type, user.ID, user)
+	if err != nil {
+		c.Status(400)
+		return
+	}
+
 	c.JSON(200, gin.H{
 		"user": user,
 	})

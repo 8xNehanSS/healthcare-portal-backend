@@ -32,9 +32,10 @@ func main() {
 			"message": "Hello World",
 		})
 	})
-	r.POST("/register", controllers.CreateUser)
+	r.POST("/register",middleware.RequireAuth, controllers.CreateUser)
 	r.POST("/login", controllers.CheckLogin)
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
+	r.POST("/validate-username", middleware.RequireAuth, controllers.ValidateUsername)
 
 	// users
 	r.GET("/users",middleware.RequireAuth, controllers.GetUsers)
