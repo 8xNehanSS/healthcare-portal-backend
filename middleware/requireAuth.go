@@ -12,7 +12,7 @@ import (
 )
 
 func RequireAuth(c *gin.Context) {
-	tokenString, err := c.Cookie("sessiontoken")
+	tokenString, err := c.Cookie("Authorization")
 	if err != nil {
 		fmt.Println("Cookie not found")
 		c.AbortWithStatus(401)
@@ -42,7 +42,7 @@ func RequireAuth(c *gin.Context) {
 			c.AbortWithStatus(401)
 		}
 		var login models.Login
-		initializers.DB.First(&login, "user_id = ?", user.ID)
+		initializers.DB.Where("user_id = ?", user.ID).First(&login)
 		c.Set("user", user)
 		c.Set("login", login)
 		c.Next()
