@@ -31,11 +31,7 @@ func CheckLogin(c *gin.Context) {
 	}
 
 	var login models.Login
-	if body.Username != nil {
-		initializers.DB.Where("username = ?", *body.Username).First(&login)
-	} else {
-		initializers.DB.Where("email = ?", *body.Email).First(&login)
-	}
+	initializers.DB.Where("username = ?", *body.Username).First(&login)
 	if login.ID == 0 {
 		c.Status(400)
 		return

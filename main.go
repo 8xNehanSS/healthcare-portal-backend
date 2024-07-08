@@ -41,7 +41,7 @@ func main() {
 	r.GET("/users",middleware.RequireAuth, controllers.GetUsers)
 	r.GET("/users/:id",middleware.RequireAuth, controllers.GetUser)
 	r.PUT("/users/:id",middleware.RequireAuth, controllers.UserUpdate)
-	r.DELETE("/users/:id",middleware.RequireAuth, controllers.UserDelete)
+	r.DELETE("/users/:id",middleware.RequireAuth, controllers.UserDelete) //check
 
 	r.Run()
 }
