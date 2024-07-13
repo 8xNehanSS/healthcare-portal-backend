@@ -36,6 +36,7 @@ func main() {
 	r.POST("/login", controllers.CheckLogin)
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
 	r.POST("/validate-username", middleware.RequireAuth, controllers.ValidateUsername)
+	r.GET("/getpublic", controllers.GetPublicData);
 
 	// users
 	r.GET("/users",middleware.RequireAuth, controllers.GetUsers)
