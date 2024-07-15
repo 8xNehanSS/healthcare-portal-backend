@@ -20,9 +20,23 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.22.5'
+        
+    # Restores Go dependencies
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
+    # Installs Go dependencies
+    - name: Install dependencies
+      run: go mod tidy
+
+    # Builds the project
     - name: Build
-      run: go build -v healthcare-portal
+      run: go build -v ./...
 
     # - name: Test
     #   run: go test -v ./...
