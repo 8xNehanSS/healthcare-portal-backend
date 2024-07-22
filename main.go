@@ -44,5 +44,11 @@ func main() {
 	r.PUT("/users/:id",middleware.RequireAuth, controllers.UserUpdate)
 	r.DELETE("/users/:id",middleware.RequireAuth, controllers.UserDelete) //check
 
+	// doctors
+	r.GET("/doctor/getdashboard", middleware.RequireAuth, controllers.GetDocDashboardData)
+
+	// patients
+	r.POST("/patient/createappointment", middleware.RequireAuth, controllers.CreateAppointment)
+
 	r.Run()
 }
