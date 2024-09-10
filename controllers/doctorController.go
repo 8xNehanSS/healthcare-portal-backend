@@ -33,33 +33,39 @@ func GetDocDashboardData(c *gin.Context) {
 		PatientNamel string
 	}
 
-	var appointmentsData []AppointmentWithPatientName
+	var upComingappointmentsData []AppointmentWithPatientName
 	initializers.DB.Table("appointments").
     	Select("appointments.*, users.first_name AS patient_namef, users.last_name AS patient_namel").
     	Joins("left join users on users.id = appointments.patient_id").
-    	Where("appointments.doctor_id = ? AND appointments.is_completed = ? AND appointments.is_accepted = ?", user.(models.User).ID, false, false).
-    	Scan(&appointmentsData)
-	var count int64
-	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND is_completed = ? AND is_accepted = ?", user.(models.User).ID, false, false).Count(&count)
+    	Where("appointments.doctor_id = ? AND appointments.is_completed = ? AND appointments.is_accepted = ?", user.(models.User).ID, false, true).
+    	Scan(&upComingappointmentsData)
+	var onGoingAppointments []AppointmentWithPatientName
+	initializers.DB.Table("appointments").
+		Select("appointments.*, users.first_name AS patient_namef, users.last_name AS patient_namel").
+    	Joins("left join users on users.id = appointments.patient_id").
+    	Where("appointments.doctor_id = ? AND appointments.is_ongoing = ?", user.(models.User).ID, true).
+    	Scan(&onGoingAppointments)
+	var requestedAppointments []AppointmentWithPatientName
+	initializers.DB.Table("appointments").
+		Select("appointments.*, users.first_name AS patient_namef, users.last_name AS patient_namel").
+    	Joins("left join users on users.id = appointments.patient_id").
+    	Where("appointments.doctor_id = ? AND appointments.is_accepted = ?", user.(models.User).ID, false).
+    	Scan(&requestedAppointments)
+	var todayCount int64
+	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND is_accepted = ?", user.(models.User).ID, true).Count(&todayCount)
 	var completedCount int64
-	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND is_completed = ? AND is_accepted = ?", user.(models.User).ID, true, true).Count(&completedCount)
+	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND is_completed = ?", user.(models.User).ID, true).Count(&completedCount)
 	var requestedCount int64
-	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND is_completed = ? AND is_accepted = ?", user.(models.User).ID, false, false).Count(&requestedCount)
-	if(count == 0) {
+	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND is_accepted = ?", user.(models.User).ID, false).Count(&requestedCount)
 		c.JSON(http.StatusOK, gin.H{
-			"upcomingA": nil,
-			"todayCount": count,
-			"completedCount": completedCount,
-			"requestedCount": requestedCount,
-		})
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-		"upcomingA": appointmentsData,
-		"todayCount": count,
+		"upcomingA": upComingappointmentsData,
+		"todayCount": todayCount,
 		"completedCount": completedCount,
 		"requestedCount": requestedCount,
+		"ongoingA": onGoingAppointments,
+		"requestedA": requestedAppointments,
 	})
-	}
+
 }
 
 func GetDoctorDashUpdates() {
