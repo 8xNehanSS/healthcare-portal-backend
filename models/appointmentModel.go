@@ -12,4 +12,5 @@ type Appointment struct {
 	Reason    	string
 	IsAccepted	bool `gorm:"default:false"`
 	IsCompleted bool `gorm:"default:false"`
+	IsOngoing	bool `gorm:"default:false"`
 }
