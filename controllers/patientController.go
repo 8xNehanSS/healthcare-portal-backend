@@ -1,43 +1,33 @@
 package controllers
 
-import (
-	"fmt"
-	"healthcare-portal/initializers"
-	"healthcare-portal/models"
-	"net/http"
-	"time"
+// func CreateAppointment(c *gin.Context) {
+// 	var body struct {
+// 		PatientID uint      `json:"patient_id"`
+// 		DoctorID  uint      `json:"doctor_id"`
+// 		Date      time.Time `json:"date"`
+// 		Reason    string    `json:"reason"`
+// 	}
 
-	"github.com/gin-gonic/gin"
-)
+// 	c.Bind(&body)
 
-func CreateAppointment(c *gin.Context) {
-	var body struct {
-		PatientID uint      `json:"patient_id"`
-		DoctorID  uint      `json:"doctor_id"`
-		Date      time.Time `json:"date"`
-		Reason    string    `json:"reason"`
-	}
+// 	appointment := models.Appointment{
+// 		PatientID: body.PatientID,
+// 		DoctorID:  body.DoctorID,
+// 		Date:     time.Now(),
+// 		Reason:    body.Reason,
+// 	}
 
-	c.Bind(&body)
+// 	result := initializers.DB.Create(&appointment)
+// 	if result.Error != nil {
+// 		fmt.Println(result.Error)
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"error": "Appointment creation failed",
+// 		})
+// 		return
+// 	}
 
-	appointment := models.Appointment{
-		PatientID: body.PatientID,
-		DoctorID:  body.DoctorID,
-		Date:     time.Now(),
-		Reason:    body.Reason,
-	}
+// 	c.JSON(200, gin.H{
+// 		"message": "Appointment created successfully",
+// 	})
 
-	result := initializers.DB.Create(&appointment)
-	if result.Error != nil {
-		fmt.Println(result.Error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Appointment creation failed",
-		})
-		return
-	}
-
-	c.JSON(200, gin.H{
-		"message": "Appointment created successfully",
-	})
-
-}
+// }

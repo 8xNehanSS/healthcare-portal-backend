@@ -1,15 +1,14 @@
 package models
 
-// type = 9 -> admin
-// type = 1 -> doctor
-// type = 2 -> patient
+import "time"
 
+// Login struct represents user login information in the system.
 type Login struct {
-	ID       uint
-	UserID   uint `gorm:"not null"`
-	User     User `gorm:"foreignKey:UserID;references:ID"`
-	Username string
-	Email    string
-	Password string
-	Type     uint
+	UserID    string    `gorm:"primaryKey;type:varchar(255);not null"` // Unique identifier for the user
+	Username  string    `gorm:"size:100;unique;not null"`               // Unique username for the user
+	Email     string    `gorm:"size:100;unique;not null"`               // Unique email for the user
+	Password  string    `gorm:"not null"`                                // Password for security
+	Type      uint      `gorm:"not null"`                                // User type: 1 = doctor, 2 = patient, 9 = admin
+	CreatedAt time.Time `gorm:"autoCreateTime"`                          // Automatically set the created timestamp
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`                          // Automatically set the updated timestamp
 }

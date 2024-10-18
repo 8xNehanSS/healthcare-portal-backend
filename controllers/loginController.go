@@ -31,8 +31,7 @@ func CheckLogin(c *gin.Context) {
 	}
 
 	var login models.Login
-	initializers.DB.Where("username = ?", *body.Username).First(&login)
-	if login.ID == 0 {
+	if err := initializers.DB.Where("username = ?", *body.Username).First(&login).Error; err != nil {
 		c.Status(400)
 		return
 	}
@@ -40,14 +39,14 @@ func CheckLogin(c *gin.Context) {
 		c.Status(400)
 		return
 	}
-	if login.Type != body.Type { 
+	if login.Type != body.Type {
 		c.Status(400)
 		return
 	}
 
 	// generate jwt
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-	"sub": login.ID,
+	"sub": login.UserID,
 	"exp": time.Now().Add(time.Hour * 24 *5).Unix(),
 	})
 
@@ -60,30 +59,68 @@ func CheckLogin(c *gin.Context) {
 	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie("Authorization", tokenString, 3600*24*5, "/", "", true, false)
 	c.JSON(http.StatusOK, gin.H{})
-
 }
 
-func CreateLogin(username string, email string, password string, userType uint, userID uint, user models.User) error {
-	login := models.Login{
-		UserID:   userID,
-		User:     user,
-		Username: username,
-		Email:    email,
-		Password: password,
-		Type:     userType,
-	}
-	
-	initializers.DB.Create(&login)
-	return nil
-}
+// func CreateLogin(username string, email string, password string, userType uint, userID string, userPatient *models.Patient, userDoctor *models.Doctor) error {
+// 	if(userPatient != nil && userDoctor != nil) {
+// 		return nil
+// 	}
+// 	if(userType == 1) {
+// 		login := models.Login{
+// 			UserID:   userID,
+// 			Username: username,
+// 			Email:    email,
+// 			Password: password,
+// 			Type:     userType,
+// 			Patient: userPatient,
+// 			PatientID: &userID,
+// 		}
+		
+// 		initializers.DB.Create(&login)
+// 		return nil
+// 	} else {
+// 		login := models.Login{
+// 			UserID:   userID,
+// 			Username: username,
+// 			Email:    email,
+// 			Password: password,
+// 			Type:     userType,
+// 			Doctor: userDoctor,
+// 			DoctorID: &userID,
+// 		}
+		
+// 		initializers.DB.Create(&login)
+// 		return nil
+// 	}
+// }
 
 func Validate(c *gin.Context) {
-	user, _ := c.Get("user")
-	login, _ := c.Get("login")
+	var firstName, lastName string
+	login, _ := c.Get("user")
+	loginData, _ := login.(models.Login)
+	if(loginData.Type == 1) {
+		var user models.Doctor
+		if err := initializers.DB.Where("doctor_id = ?", loginData.UserID).First(&user).Error; err != nil {
+			c.Status(401)
+			return
+		}
+		firstName = user.FirstName
+		lastName = user.LastName
+	} else {
+		var user models.Patient
+		if err := initializers.DB.Where("patient_id = ?", loginData.UserID).First(&user).Error; err != nil {
+			c.Status(401)
+			return
+		}
+		firstName = user.FirstName
+		lastName = user.LastName
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"user": user,
-		"login": login.(models.Login).ID,
-		"loginType": login.(models.Login).Type,
+		"userID": loginData.UserID,
+		"username": loginData.Username,
+		"firstname": firstName,
+		"lastname": lastName,
+		"loginType": loginData.Type,
 	})
 }

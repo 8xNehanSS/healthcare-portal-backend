@@ -36,15 +36,12 @@ func RequireAuth(c *gin.Context) {
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
 			c.AbortWithStatus(401)
 		}
-		var user models.User
-		initializers.DB.First(&user, claims["sub"])
-		if user.ID == 0 {
-			c.AbortWithStatus(401)
+		var user models.Login
+		if err := initializers.DB.Where("user_id = ?", claims["sub"]).First(&user).Error; err != nil {
+			c.Status(401)
+			return
 		}
-		var login models.Login
-		initializers.DB.Where("user_id = ?", user.ID).First(&login)
 		c.Set("user", user)
-		c.Set("login", login)
 		c.Next()
 	} else {
 		c.AbortWithStatus(401)

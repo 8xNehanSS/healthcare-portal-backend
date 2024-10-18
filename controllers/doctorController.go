@@ -34,29 +34,29 @@ func GetDocDashboardData(c *gin.Context) {
 	}
 
 	var upComingappointmentsData []AppointmentWithPatientName
-	initializers.DB.Table("appointments").
-    	Select("appointments.*, users.first_name AS patient_namef, users.last_name AS patient_namel").
-    	Joins("left join users on users.id = appointments.patient_id").
-    	Where("appointments.doctor_id = ? AND appointments.is_completed = ? AND appointments.is_accepted = ?", user.(models.User).ID, false, true).
+	initializers.DB.Limit(6).Table("appointments").
+    	Select("appointments.*, patients.first_name AS patient_namef, patients.last_name AS patient_namel").
+    	Joins("left join patients on patients.patient_id = appointments.patient_id").
+    	Where("appointments.doctor_id = ? AND appointments.status = ?", user.(models.Login).UserID, "confirmed").
     	Scan(&upComingappointmentsData)
 	var onGoingAppointments []AppointmentWithPatientName
-	initializers.DB.Table("appointments").
-		Select("appointments.*, users.first_name AS patient_namef, users.last_name AS patient_namel").
-    	Joins("left join users on users.id = appointments.patient_id").
-    	Where("appointments.doctor_id = ? AND appointments.is_ongoing = ?", user.(models.User).ID, true).
+	initializers.DB.Limit(6).Table("appointments").
+    	Select("appointments.*, patients.first_name AS patient_namef, patients.last_name AS patient_namel").
+    	Joins("left join patients on patients.patient_id = appointments.patient_id").
+    	Where("appointments.doctor_id = ? AND appointments.status = ?", user.(models.Login).UserID, "ongoing").
     	Scan(&onGoingAppointments)
 	var requestedAppointments []AppointmentWithPatientName
-	initializers.DB.Table("appointments").
-		Select("appointments.*, users.first_name AS patient_namef, users.last_name AS patient_namel").
-    	Joins("left join users on users.id = appointments.patient_id").
-    	Where("appointments.doctor_id = ? AND appointments.is_accepted = ?", user.(models.User).ID, false).
+	initializers.DB.Limit(6).Table("appointments").
+    	Select("appointments.*, patients.first_name AS patient_namef, patients.last_name AS patient_namel").
+    	Joins("left join patients on patients.patient_id = appointments.patient_id").
+    	Where("appointments.doctor_id = ? AND appointments.status = ?", user.(models.Login).UserID, "requested").
     	Scan(&requestedAppointments)
 	var todayCount int64
-	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND is_accepted = ?", user.(models.User).ID, true).Count(&todayCount)
+	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND appointments.status = ?", user.(models.Login).UserID, "confirmed").Count(&todayCount)
 	var completedCount int64
-	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND is_completed = ?", user.(models.User).ID, true).Count(&completedCount)
+	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND appointments.status = ?", user.(models.Login).UserID, "completed").Count(&completedCount)
 	var requestedCount int64
-	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND is_accepted = ?", user.(models.User).ID, false).Count(&requestedCount)
+	initializers.DB.Model(&models.Appointment{}).Where("doctor_id = ? AND appointments.status = ?", user.(models.Login).UserID, "requested").Count(&requestedCount)
 		c.JSON(http.StatusOK, gin.H{
 		"upcomingA": upComingappointmentsData,
 		"todayCount": todayCount,

@@ -32,23 +32,23 @@ func main() {
 			"message": "Hello World",
 		})
 	})
-	r.POST("/register",middleware.RequireAuth, controllers.CreateUser)
+	// r.POST("/register",middleware.RequireAuth, controllers.CreatePatientUser)
 	r.POST("/login", controllers.CheckLogin)
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
 	r.POST("/validate-username", middleware.RequireAuth, controllers.ValidateUsername)
 	r.GET("/getpublic", controllers.GetPublicData);
 
 	// users
-	r.GET("/users",middleware.RequireAuth, controllers.GetUsers)
-	r.GET("/users/:id",middleware.RequireAuth, controllers.GetUser)
-	r.PUT("/users/:id",middleware.RequireAuth, controllers.UserUpdate)
-	r.DELETE("/users/:id",middleware.RequireAuth, controllers.UserDelete) //check
+	// r.GET("/users",middleware.RequireAuth, controllers.GetUsers)
+	// r.GET("/users/:id",middleware.RequireAuth, controllers.GetUser)
+	// r.PUT("/users/:id",middleware.RequireAuth, controllers.UserUpdate)
+	// r.DELETE("/users/:id",middleware.RequireAuth, controllers.UserDelete) //check
 
 	// doctors
 	r.GET("/doctor/getdashboard", middleware.RequireAuth, controllers.GetDocDashboardData)
 
 	// patients
-	r.POST("/patient/createappointment", middleware.RequireAuth, controllers.CreateAppointment)
+	// r.POST("/patient/createappointment", middleware.RequireAuth, controllers.CreateAppointment)
 
 	r.Run()
 }
