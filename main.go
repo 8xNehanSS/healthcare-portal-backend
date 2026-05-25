@@ -19,7 +19,7 @@ func main() {
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
         AllowOrigins:     []string{"http://localhost:3001"}, // Allow frontend origin
-        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH"},
         AllowHeaders:     []string{"Origin", "Content-Type"},
         ExposeHeaders:    []string{"Content-Length"},
         AllowCredentials: true, // Allow cookies
@@ -46,6 +46,7 @@ func main() {
 
 	// doctors
 	r.GET("/doctor/getdashboard", middleware.RequireAuth, controllers.GetDocDashboardData)
+	r.PATCH("/doctor/updateappointment", middleware.RequireAuth, controllers.UpdateAppointment)
 
 	// patients
 	// r.POST("/patient/createappointment", middleware.RequireAuth, controllers.CreateAppointment)

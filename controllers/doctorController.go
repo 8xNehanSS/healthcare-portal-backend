@@ -21,8 +21,27 @@ func GetAppointmentByID() {
 
 }
 
-func UpdateAppointment() {
-
+func UpdateAppointment(c *gin.Context) {
+	var body struct {
+		AppointmentID string `json:"appointment_id"`
+		Status string `json:"status"`
+	}
+	c.Bind(&body)
+	if(body.AppointmentID == "") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+	var appointment models.Appointment
+	err := initializers.DB.Where("id = ?", body.AppointmentID).First(&appointment)
+	if err.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid appointment ID"})
+		return;
+	}
+	appointmentUpdated := models.Appointment{
+		Status: body.Status,
+	}
+	initializers.DB.Model(&appointment).Updates(appointmentUpdated)
+	c.JSON(http.StatusOK, gin.H{"message": "Appointment updated successfully"})
 }
 
 func GetDocDashboardData(c *gin.Context) {
